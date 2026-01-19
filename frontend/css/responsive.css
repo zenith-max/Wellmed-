@@ -182,10 +182,11 @@
     flex-direction: column;
     gap: 0.75rem;
     align-items: flex-start;
+    padding: 0.75rem 1rem;
   }
 
   .nav-logo a {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .nav-menu {
@@ -194,8 +195,23 @@
     gap: 0.75rem;
   }
 
+  .navbar {
+    padding: 0.75rem 0;
+  }
+
+  .nav-logo img {
+    height: 36px;
+  }
+
+  .products-section h2 {
+    text-align: center;
+    font-size: 1.4rem;
+    margin-top: 0.5rem;
+  }
+
   .nav-item {
     width: 100%;
+    gap: 1rem;
   }
 
   .search-input {
@@ -215,6 +231,10 @@
   .product-actions {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .product-image {
+    height: 200px;
   }
 
   .products-grid {
