@@ -1,5 +1,27 @@
 /* ============== RESPONSIVE DESIGN ============== */
 
+/* ============== LARGE TABLET / SMALL DESKTOP (1024px and down) ============== */
+
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0.75rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .product-card {
+    min-height: auto;
+  }
+
+  .product-image {
+    height: 180px;
+  }
+}
+
 /* ============== TABLET (768px and down) ============== */
 
 @media (max-width: 768px) {
@@ -159,6 +181,7 @@
   .nav-container {
     flex-direction: column;
     gap: 0.75rem;
+    align-items: flex-start;
   }
 
   .nav-logo a {
@@ -182,6 +205,16 @@
   .nav-icons {
     width: 100%;
     gap: 1rem;
+    justify-content: flex-start;
+  }
+
+  .products-section h2 {
+    text-align: center;
+  }
+
+  .product-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .products-grid {
