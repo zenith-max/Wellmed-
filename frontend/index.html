@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medwell - Surgical Materials</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="C:\Users\Rishi\Downloads\WhatsApp Image 2026-01-17 at 12.08.15 PM.jpeg" alt="Wellmed Surgicals logo featuring the company name in professional medical branding" class="logo-img">
+        <span class="brand-name"><span class="brand-well"><span>WELL</span><span style="color: rgb(194, 0, 0);">MED</span></span> <span class="brand-surgicals" style="color: rgb(194, 0, 0);">SURGICALS</span></span>
+      </div>
+      <ul class="nav-menu" id="navMenu">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link active">Products</a>
+        </li>
+        <li class="nav-item">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search products...">
+        </li>
+        <li class="nav-item">
+          <button class="filter-toggle" id="filterToggle"><span><img src ="https://cdn-icons-png.flaticon.com/128/8567/8567254.png" alt="Filter icon" width="16" height="16"></span> Filters</button>
+        </li>
+        <li class="nav-item">
+          <div class="nav-icons">
+            <span class="cart-icon" id="cartIcon"><img src="https://cdn-icons-png.flaticon.com/128/3144/3144456.png"  alt="Shopping cart" width="28" height="28"> <span id="cartCount">0</span></span>
+            <span class="user-menu" id="userMenu"><img src="https://cdn-icons-png.flaticon.com/128/3033/3033143.png" alt="User menu" width="28" height="28"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Filter Dropdown Menu -->
+    <div class="filter-dropdown" id="filterDropdown">
+      <div class="filter-dropdown-content">
+        <h3>Filters</h3>
+        
+        <div class="filter-group">
+          <h4>Category</h4>
+          <div class="category-filters">
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="" checked> All Products
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="surgical-gloves" > Surgical Gloves
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="masks"> Masks
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="syringes"> Syringes
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="bandages"> Bandages
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="sterilization"> Sterilization
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="instruments"> Instruments
+            </label>
+            <label style="color:#0f4c81;">
+              <input type="radio" name="category" value="protective-wear"> Protective Wear
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Price Range</h4>
+          <input type="range" id="priceRange" min="0" max="10000" value="10000" style="width: 100%;">
+          <p style="color:#0f4c81;">Max: ₹<span id="priceValue">10000</span></p>
+        </div>
+
+        
+        <button class="btn btn-secondary" onclick="applyFilters()">Apply</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- User Menu Dropdown -->
+  <div class="dropdown-menu" id="userDropdown">
+    <div id="userLoggedIn" style="display: none;">
+      <p id="userName">Welcome</p>
+      <button onclick="goToOrders()">My Orders</button>
+      <button onclick="goToAdmin()">Admin Panel</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <div id="userLoggedOut" style="display: block;">
+      <button onclick="window.location.href='login.html'">Login</button>
+      <button onclick="window.location.href='register.html'">Register</button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Products Section -->
+    <section class="products-section">
+      <h2>Surgical Materials Catalog</h2>
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded here by JavaScript -->
+        <div class="loading">Loading products...</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Shopping Cart</h2>
+        <button class="close-btn" onclick="closeCart()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="cartItems">
+          <!-- Cart items will be displayed here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div id="cartSummary">
+          <p>Total: ₹<span id="cartTotal">0</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="checkout()" id="checkoutBtn">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2026 Wellmed - Premium Surgical Materials. All rights reserved.</p>
+      <p>Contact: support@wellmed.com | Phone: +91-XXXX-XXXX</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

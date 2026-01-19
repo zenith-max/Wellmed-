@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Medwell</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="logo-container">
+        <a href="index.html" aria-label="Back to products">
+          <img src="C:\Users\Rishi\Downloads\WhatsApp Image 2026-01-17 at 12.08.15 PM.jpeg" height="50" width="50" alt="Medwell logo">
+        </a>
+      </div>
+      <h1>Admin Login</h1>
+      <p class="auth-subtitle">Sign in with admin credentials</p>
+
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required placeholder="E-Mail ID">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••">
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <button type="submit" class="btn btn-primary btn-full">Login</button>
+      </form>
+
+      <p class="auth-toggle">
+        Need a customer account? <a href="login.html">Go to customer login</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-login.js"></script>
+</body>
+</html>

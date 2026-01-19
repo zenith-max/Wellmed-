@@ -1,0 +1,17 @@
+# Node
+backend/node_modules/
+frontend/node_modules/
+
+# Environment
+backend/.env
+frontend/.env
+
+# Dumps
+_dump_medwell/
+
+# Local uploads
+backend/uploads/
+
+# Logs
+npm-debug.log*
+yarn-error.log*

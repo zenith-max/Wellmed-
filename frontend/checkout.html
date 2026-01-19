@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Medwell</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="C:\Users\Rishi\Downloads\WhatsApp Image 2026-01-17 at 12.08.15 PM.jpeg" alt="Wellmed Surgicals logo featuring the company name in professional medical branding" class="logo-img">
+        <a href="index.html">WELL<span style="color: rgb(194, 0, 0);">MED</span></a>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">Continue Shopping</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="checkout-wrapper">
+      <!-- Order Summary -->
+      <section class="checkout-section order-summary">
+        <h2>Order Summary</h2>
+        <div id="checkoutItemsList">
+          <!-- Items will be loaded here -->
+        </div>
+        <div class="checkout-summary">
+          <p>Subtotal: ₹<span id="subtotal">0</span></p>
+          <p>Shipping: ₹<span id="shipping">50</span></p>
+          <hr>
+          <h3>Total: ₹<span id="checkoutTotal">0</span></h3>
+        </div>
+      </section>
+
+      <!-- Checkout Form -->
+      <section class="checkout-section checkout-form">
+        <h2>Shipping & Payment</h2>
+        <form id="checkoutForm" onsubmit="handleCheckout(event)">
+          <fieldset>
+            <legend>Shipping Address</legend>
+            
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input type="text" id="fullName" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" required pattern="[0-9]{10}">
+            </div>
+
+            <div class="form-group">
+              <label for="street">Street Address</label>
+              <input type="text" id="street" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" required>
+              </div>
+
+              <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="zipCode">Zip Code</label>
+              <input type="text" id="zipCode" required pattern="[0-9]{6}">
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Payment Method</legend>
+            
+            <div class="form-group">
+              <label>
+                <input type="radio" name="paymentMethod" value="credit-card" checked>
+                Credit Card
+              </label>
+              <label>
+                <input type="radio" name="paymentMethod" value="debit-card">
+                Debit Card
+              </label>
+              <label>
+                <input type="radio" name="paymentMethod" value="upi">
+                UPI
+              </label>
+              <label>
+                <input type="radio" name="paymentMethod" value="net-banking">
+                Net Banking
+              </label>
+            </div>
+          </fieldset>
+
+          <div id="checkoutError" class="error-message"></div>
+
+          <button type="submit" class="btn btn-primary btn-full btn-large">Place Order</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2026 Med<span style="color: red;">well</span> - Premium Surgical Materials.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>
