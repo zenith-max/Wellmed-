@@ -1,6 +1,6 @@
 // ============== CONFIGURATION ==============
-// API Base URL - Change this to match your backend server
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Base URL - points to the deployed backend reverse-proxied at /api
+const API_BASE_URL = 'https://wellmedsurgicals.com/api';
 
 // Token management
 const getToken = () => localStorage.getItem('token');
