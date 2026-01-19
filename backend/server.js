@@ -12,7 +12,18 @@ dotenv.config();
 const app = express();
 
 // ============== MIDDLEWARE ==============
-app.use(cors());
+// CORS: allow deployed frontend origins (and local file:// for quick testing)
+app.use(cors({
+  origin: [
+    'https://wellmedsurgicals.com',
+    'https://www.wellmedsurgicals.com',
+    'null' // allows file:// origin during local static testing
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
