@@ -85,7 +85,7 @@
 
   .form-row {
     grid-template-columns: 1fr;
-  }
+        padding: 0.5rem 0.75rem;
 
   .checkout-wrapper {
     grid-template-columns: 1fr;
@@ -95,7 +95,7 @@
     grid-template-columns: 1fr;
   }
 
-  .admin-sidebar {
+        gap: 0.5rem;
     position: sticky;
     top: auto;
   }
@@ -104,16 +104,18 @@
     display: flex;
     overflow-x: auto;
     gap: 0.5rem;
+        margin-bottom: 0.25rem;
   }
 
   .admin-link {
     white-space: nowrap;
-  }
+        gap: 0.75rem;
 
+        margin-top: 0.25rem;
   .dashboard-stats {
     grid-template-columns: 1fr;
   }
-
+        padding: 0.5rem 0;
   .products-table,
   .orders-table {
     font-size: 0.85rem;
@@ -216,6 +218,8 @@
 
   .search-input {
     width: 100%;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.95rem;
   }
 
   .nav-icons {
