@@ -30,6 +30,15 @@ app.use(express.urlencoded({ extended: true }));
 // Serve local uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve the frontend static files
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
+
+// Root route sends the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 // ============== CLOUDINARY CONFIGURATION ==============
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
