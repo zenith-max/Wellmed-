@@ -32,10 +32,19 @@ exports.getAllProducts = async (req, res) => {
 
     const products = await Product.find(filter).sort({ createdAt: -1 });
 
+    // Normalize image URLs so frontend gets absolute paths
+    const normalized = products.map((p) => {
+      const obj = p.toObject();
+      if (obj.imageUrl && !/^https?:\/\//i.test(obj.imageUrl)) {
+        obj.imageUrl = `${PUBLIC_BASE_URL}${obj.imageUrl.startsWith('/') ? '' : '/'}${obj.imageUrl}`;
+      }
+      return obj;
+    });
+
     return res.status(200).json({
       success: true,
-      count: products.length,
-      products
+      count: normalized.length,
+      products: normalized
     });
   } catch (error) {
     return res.status(500).json({
