@@ -70,28 +70,16 @@ const productsAPI = {
       method: 'GET'
     }),
 
-  create: (formData) =>
-    fetch(`${API_BASE_URL}/products`, {
+  create: (data) =>
+    apiCall('/products', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: formData
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to create product');
-      return res.json();
+      body: JSON.stringify(data)
     }),
 
-  update: (id, formData) =>
-    fetch(`${API_BASE_URL}/products/${id}`, {
+  update: (id, data) =>
+    apiCall(`/products/${id}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: formData
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to update product');
-      return res.json();
+      body: JSON.stringify(data)
     }),
 
   delete: (id) =>

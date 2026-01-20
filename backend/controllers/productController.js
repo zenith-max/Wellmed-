@@ -1,12 +1,4 @@
 const Product = require('../models/Product');
-const fs = require('fs');
-const path = require('path');
-// Local storage setup
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
 const PUBLIC_BASE_URL = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 // @desc    Get all products
@@ -87,7 +79,7 @@ exports.getProductById = async (req, res) => {
 // @access  Private (Admin)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, imageUrl } = req.body;
+    const { name, description, price, category, stock, imageUrl, imagePublicId } = req.body;
 
     // Validation
     if (!name || !description || !price || !category || stock === undefined) {
@@ -96,34 +88,30 @@ exports.createProduct = async (req, res) => {
         message: 'Please provide all required fields'
       });
     }
-
-    let productImageUrl = imageUrl || 'https://via.placeholder.com/300?text=Product+Image';
-    let imagePublicId = null;
-
-    // Save image locally if provided
-    if (req.file) {
-      const ext = path.extname(req.file.originalname || req.file.filename || '') || '.jpg';
-      const localName = `${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`;
-      const destPath = path.join(uploadsDir, localName);
-      try {
-        fs.renameSync(req.file.path, destPath);
-        productImageUrl = `${PUBLIC_BASE_URL}/uploads/${localName}`;
-        imagePublicId = localName;
-      } catch (fileErr) {
-        console.warn('Local upload failed, using placeholder:', fileErr.message);
-        try { fs.unlinkSync(req.file.path); } catch (_) {}
-      }
+    if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a Cloudinary image URL'
+      });
     }
 
-    // Create product with image URL
+    const normalizedUrl = imageUrl.trim();
+    const isCloudinary = /cloudinary\.com/i.test(normalizedUrl);
+    if (!isCloudinary) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image URL must be a Cloudinary URL'
+      });
+    }
+
     const product = await Product.create({
       name,
       description,
       price,
       category,
       stock,
-      imageUrl: productImageUrl,
-      imagePublicId
+      imageUrl: normalizedUrl,
+      imagePublicId: imagePublicId || null
     });
 
     return res.status(201).json({
@@ -146,7 +134,7 @@ exports.createProduct = async (req, res) => {
 // @access  Private (Admin)
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, imageUrl, imagePublicId } = req.body;
     let product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -163,24 +151,25 @@ exports.updateProduct = async (req, res) => {
     if (category) product.category = category;
     if (stock !== undefined) product.stock = stock;
 
-    // Update image if provided
-    if (req.file) {
-      if (product.imagePublicId) {
-        const oldPath = path.join(uploadsDir, product.imagePublicId);
-        try { fs.unlinkSync(oldPath); } catch (_) {}
+    // Update image URL if provided (must be Cloudinary)
+    if (imageUrl) {
+      if (typeof imageUrl !== 'string' || !imageUrl.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Image URL must be a non-empty string'
+        });
       }
-
-      const ext = path.extname(req.file.originalname || req.file.filename || '') || '.jpg';
-      const localName = `${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`;
-      const destPath = path.join(uploadsDir, localName);
-
-      try {
-        fs.renameSync(req.file.path, destPath);
-        product.imageUrl = `${PUBLIC_BASE_URL}/uploads/${localName}`;
-        product.imagePublicId = localName;
-      } catch (fileErr) {
-        console.warn('Local upload failed, keeping previous image:', fileErr.message);
-        try { fs.unlinkSync(req.file.path); } catch (_) {}
+      const normalizedUrl = imageUrl.trim();
+      const isCloudinary = /cloudinary\.com/i.test(normalizedUrl);
+      if (!isCloudinary) {
+        return res.status(400).json({
+          success: false,
+          message: 'Image URL must be a Cloudinary URL'
+        });
+      }
+      product.imageUrl = normalizedUrl;
+      if (imagePublicId !== undefined) {
+        product.imagePublicId = imagePublicId || null;
       }
     }
 
@@ -215,13 +204,6 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete local image if stored
-    if (product.imagePublicId) {
-      const localPath = path.join(uploadsDir, product.imagePublicId);
-      try { fs.unlinkSync(localPath); } catch (_) {}
-    }
-
-    // Delete product from database
     await Product.findByIdAndDelete(req.params.id);
 
     return res.status(200).json({

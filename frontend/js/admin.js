@@ -336,6 +336,8 @@ const showAddProductForm = () => {
   document.getElementById('formTitle').textContent = 'Add New Product';
   document.getElementById('productId').value = '';
   document.querySelector('#productForm form').reset();
+  const imgUrlInput = document.getElementById('productImageUrl');
+  if (imgUrlInput) imgUrlInput.value = '';
   document.getElementById('imagePreview').innerHTML = '';
 };
 
@@ -354,6 +356,8 @@ const editProduct = async (productId) => {
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productStock').value = product.stock;
     document.getElementById('productCategory').value = product.category;
+    const imgUrlInput = document.getElementById('productImageUrl');
+    if (imgUrlInput) imgUrlInput.value = product.imageUrl || '';
 
     // Show image preview
     document.getElementById('imagePreview').innerHTML = `
@@ -394,27 +398,17 @@ const handleProductSubmit = async (event) => {
   const price = document.getElementById('productPrice').value;
   const stock = document.getElementById('productStock').value;
   const category = document.getElementById('productCategory').value;
-  const imageFile = document.getElementById('productImage').files[0];
+  const imageUrl = document.getElementById('productImageUrl').value.trim();
 
-  // Create FormData for multipart/form-data
-  const formData = new FormData();
-  formData.append('name', name);
-  formData.append('description', description);
-  formData.append('price', price);
-  formData.append('stock', stock);
-  formData.append('category', category);
-
-  if (imageFile) {
-    formData.append('image', imageFile);
-  }
+  const payload = { name, description, price, stock, category, imageUrl };
 
   try {
     let response;
     if (productId) {
-      response = await productsAPI.update(productId, formData);
+      response = await productsAPI.update(productId, payload);
       alert('Product updated successfully');
     } else {
-      response = await productsAPI.create(formData);
+      response = await productsAPI.create(payload);
       alert('Product created successfully');
     }
 
@@ -426,17 +420,14 @@ const handleProductSubmit = async (event) => {
   }
 };
 
-// Image preview
-document.addEventListener('change', function(e) {
-  if (e.target.id === 'productImage') {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        document.getElementById('imagePreview').innerHTML =
-          `<img src="${event.target.result}" style="max-width: 200px;">`;
-      };
-      reader.readAsDataURL(file);
+// Image preview for Cloudinary URL
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'productImageUrl') {
+    const url = e.target.value.trim();
+    if (url) {
+      document.getElementById('imagePreview').innerHTML = `<img src="${url}" style="max-width: 200px;">`;
+    } else {
+      document.getElementById('imagePreview').innerHTML = '';
     }
   }
 });
