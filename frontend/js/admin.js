@@ -399,16 +399,24 @@ const handleProductSubmit = async (event) => {
   const stock = document.getElementById('productStock').value;
   const category = document.getElementById('productCategory').value;
   const imageUrl = document.getElementById('productImageUrl').value.trim();
+  const imageFile = document.getElementById('productImage').files[0];
 
-  const payload = { name, description, price, stock, category, imageUrl };
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('description', description);
+  formData.append('price', price);
+  formData.append('stock', stock);
+  formData.append('category', category);
+  if (imageUrl) formData.append('imageUrl', imageUrl);
+  if (imageFile) formData.append('image', imageFile);
 
   try {
     let response;
     if (productId) {
-      response = await productsAPI.update(productId, payload);
+      response = await productsAPI.update(productId, formData);
       alert('Product updated successfully');
     } else {
-      response = await productsAPI.create(payload);
+      response = await productsAPI.create(formData);
       alert('Product created successfully');
     }
 
@@ -420,12 +428,28 @@ const handleProductSubmit = async (event) => {
   }
 };
 
-// Image preview for Cloudinary URL
+// Image preview for Cloudinary URL or local file
 document.addEventListener('input', function(e) {
   if (e.target.id === 'productImageUrl') {
     const url = e.target.value.trim();
     if (url) {
       document.getElementById('imagePreview').innerHTML = `<img src="${url}" style="max-width: 200px;">`;
+    } else {
+      document.getElementById('imagePreview').innerHTML = '';
+    }
+  }
+});
+
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'productImage') {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('imagePreview').innerHTML =
+          `<img src="${event.target.result}" style="max-width: 200px;">`;
+      };
+      reader.readAsDataURL(file);
     } else {
       document.getElementById('imagePreview').innerHTML = '';
     }

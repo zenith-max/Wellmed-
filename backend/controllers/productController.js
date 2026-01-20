@@ -1,5 +1,26 @@
 const Product = require('../models/Product');
+const cloudinary = require('cloudinary').v2;
 const PUBLIC_BASE_URL = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+const uploadBufferToCloudinary = (buffer, filename = 'upload') => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'medwell_products', public_id: filename.replace(/\.[^.]+$/, '') },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
+};
+
+const normalizeProductImage = (obj) => {
+  if (obj.imageUrl && !/^https?:\/\//i.test(obj.imageUrl)) {
+    obj.imageUrl = `${PUBLIC_BASE_URL}${obj.imageUrl.startsWith('/') ? '' : '/'}${obj.imageUrl}`;
+  }
+  return obj;
+};
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -24,14 +45,8 @@ exports.getAllProducts = async (req, res) => {
 
     const products = await Product.find(filter).sort({ createdAt: -1 });
 
-    // Normalize image URLs so frontend gets absolute paths
-    const normalized = products.map((p) => {
-      const obj = p.toObject();
-      if (obj.imageUrl && !/^https?:\/\//i.test(obj.imageUrl)) {
-        obj.imageUrl = `${PUBLIC_BASE_URL}${obj.imageUrl.startsWith('/') ? '' : '/'}${obj.imageUrl}`;
-      }
-      return obj;
-    });
+    // Normalize image URLs so frontend gets absolute paths (legacy support)
+    const normalized = products.map((p) => normalizeProductImage(p.toObject()));
 
     return res.status(200).json({
       success: true,
@@ -63,7 +78,7 @@ exports.getProductById = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      product
+      product: normalizeProductImage(product.toObject())
     });
   } catch (error) {
     return res.status(500).json({
@@ -88,19 +103,27 @@ exports.createProduct = async (req, res) => {
         message: 'Please provide all required fields'
       });
     }
-    if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide a Cloudinary image URL'
-      });
-    }
+    let finalImageUrl = null;
+    let finalPublicId = imagePublicId || null;
 
-    const normalizedUrl = imageUrl.trim();
-    const isCloudinary = /cloudinary\.com/i.test(normalizedUrl);
-    if (!isCloudinary) {
+    if (req.file && req.file.buffer) {
+      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
+      finalImageUrl = uploadResult.secure_url;
+      finalPublicId = uploadResult.public_id;
+    } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim()) {
+      const normalizedUrl = imageUrl.trim();
+      const isCloudinary = /cloudinary\.com/i.test(normalizedUrl);
+      if (!isCloudinary) {
+        return res.status(400).json({
+          success: false,
+          message: 'Image URL must be a Cloudinary URL'
+        });
+      }
+      finalImageUrl = normalizedUrl;
+    } else {
       return res.status(400).json({
         success: false,
-        message: 'Image URL must be a Cloudinary URL'
+        message: 'Please upload an image file or provide a Cloudinary image URL'
       });
     }
 
@@ -110,8 +133,8 @@ exports.createProduct = async (req, res) => {
       price,
       category,
       stock,
-      imageUrl: normalizedUrl,
-      imagePublicId: imagePublicId || null
+      imageUrl: finalImageUrl,
+      imagePublicId: finalPublicId
     });
 
     return res.status(201).json({
@@ -151,8 +174,16 @@ exports.updateProduct = async (req, res) => {
     if (category) product.category = category;
     if (stock !== undefined) product.stock = stock;
 
-    // Update image URL if provided (must be Cloudinary)
-    if (imageUrl) {
+    // Update image if provided: prefer uploaded file, else Cloudinary URL
+    if (req.file && req.file.buffer) {
+      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
+      // Optionally cleanup old image in Cloudinary if we have a public ID
+      if (product.imagePublicId) {
+        cloudinary.uploader.destroy(product.imagePublicId).catch(() => {});
+      }
+      product.imageUrl = uploadResult.secure_url;
+      product.imagePublicId = uploadResult.public_id;
+    } else if (imageUrl) {
       if (typeof imageUrl !== 'string' || !imageUrl.trim()) {
         return res.status(400).json({
           success: false,
