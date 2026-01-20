@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { getShippingChargeValue } = require('./settingsController');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -23,6 +24,7 @@ exports.createOrder = async (req, res) => {
     }
 
     let totalPrice = 0;
+    let shippingFee = await getShippingChargeValue();
     const orderItems = [];
 
     // Validate items and calculate total
@@ -61,7 +63,8 @@ exports.createOrder = async (req, res) => {
     const order = await Order.create({
       userId: req.user.id,
       items: orderItems,
-      totalPrice,
+      totalPrice: totalPrice + shippingFee,
+      shippingFee,
       shippingAddress,
       paymentMethod: paymentMethod || 'credit-card'
     });

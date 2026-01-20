@@ -111,6 +111,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
 
 // Health check route
 app.get('/api/health', (req, res) => {

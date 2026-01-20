@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDashboard();
   loadAdminProducts();
   loadAdminOrders();
+  loadShippingCharge();
 });
 
 // ============== SECTION NAVIGATION ==============
@@ -94,6 +95,63 @@ const showSection = (sectionId) => {
     loadAdminProducts();
   } else if (sectionId === 'orders') {
     loadAdminOrders();
+  }
+};
+
+// ============== SETTINGS (SHIPPING) ==============
+const loadShippingCharge = async () => {
+  const input = document.getElementById('shippingChargeInput');
+  const message = document.getElementById('shippingMessage');
+  if (!input) return;
+
+  try {
+    const res = await settingsAPI.getShipping();
+    if (res && res.success && typeof res.shippingCharge === 'number') {
+      input.value = res.shippingCharge;
+      if (message) {
+        message.textContent = `Current shipping charge: ₹${res.shippingCharge}`;
+      }
+    }
+  } catch (error) {
+    if (message) {
+      message.textContent = 'Could not load shipping charge. Using default.';
+      message.style.color = '#c0392b';
+    }
+  }
+};
+
+const updateShippingCharge = async (event) => {
+  event.preventDefault();
+  const input = document.getElementById('shippingChargeInput');
+  const message = document.getElementById('shippingMessage');
+  if (!input) return;
+
+  const value = Number(input.value);
+  if (!Number.isFinite(value) || value < 0) {
+    if (message) {
+      message.textContent = 'Enter a valid non-negative amount.';
+      message.style.color = '#c0392b';
+    }
+    return;
+  }
+
+  try {
+    if (message) {
+      message.textContent = 'Saving...';
+      message.style.color = '#0f4c81';
+    }
+    const res = await settingsAPI.updateShipping(value);
+    if (res && res.success) {
+      if (message) {
+        message.textContent = `Shipping charge updated to ₹${res.shippingCharge}`;
+        message.style.color = '#0f4c81';
+      }
+    }
+  } catch (error) {
+    if (message) {
+      message.textContent = error.message || 'Failed to update shipping charge';
+      message.style.color = '#c0392b';
+    }
   }
 };
 

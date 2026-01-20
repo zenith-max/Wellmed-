@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCheckoutData();
 });
 
-const loadCheckoutData = () => {
+const loadCheckoutData = async () => {
   const cart = getCart();
 
   // Render cart items
@@ -35,11 +35,21 @@ const loadCheckoutData = () => {
     })
     .join('');
 
-  // Update totals
-  const shipping = 50; // Fixed shipping cost
+  // Fetch shipping charge (fallback to 50 on error)
+  let shipping = 50;
+  try {
+    const response = await settingsAPI.getShipping();
+    if (response && response.success && typeof response.shippingCharge === 'number') {
+      shipping = response.shippingCharge;
+    }
+  } catch (err) {
+    console.warn('Unable to load shipping charge, using default 50', err.message || err);
+  }
+
   const total = subtotal + shipping;
 
   document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+  document.getElementById('shipping').textContent = shipping.toFixed(2);
   document.getElementById('checkoutTotal').textContent = total.toFixed(2);
 
   // Prefill user details if available

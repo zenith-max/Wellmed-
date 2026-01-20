@@ -135,3 +135,18 @@ const ordersAPI = {
       method: 'DELETE'
     })
 };
+
+// ============== SETTINGS API ==============
+
+const settingsAPI = {
+  getShipping: () =>
+    apiCall('/settings/shipping', {
+      method: 'GET'
+    }),
+
+  updateShipping: (shippingCharge) =>
+    apiCall('/settings/shipping', {
+      method: 'PUT',
+      body: JSON.stringify({ shippingCharge })
+    })
+};
