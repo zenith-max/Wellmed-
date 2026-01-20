@@ -2,12 +2,28 @@ const Product = require('../models/Product');
 const cloudinary = require('cloudinary').v2;
 const PUBLIC_BASE_URL = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 5000}`;
 
+const ensureCloudinaryConfig = () => {
+  if (!cloudinary.config().cloud_name) {
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+    cloudinary.config({
+      cloud_name: CLOUDINARY_CLOUD_NAME,
+      api_key: CLOUDINARY_API_KEY,
+      api_secret: CLOUDINARY_API_SECRET
+    });
+  }
+
+  if (!cloudinary.config().cloud_name) {
+    throw new Error('Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET');
+  }
+};
+
 const uploadBufferToCloudinary = (buffer, filename = 'upload') => {
+  ensureCloudinaryConfig();
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder: 'medwell_products', public_id: filename.replace(/\.[^.]+$/, '') },
       (error, result) => {
-        if (error) return reject(error);
+        if (error) return reject(new Error(`Cloudinary upload failed: ${error.message || error.toString()}`));
         resolve(result);
       }
     );
@@ -146,8 +162,7 @@ exports.createProduct = async (req, res) => {
     console.error('Create product error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error creating product',
-      error: error.message
+      message: error.message || 'Error creating product'
     });
   }
 };
@@ -213,10 +228,10 @@ exports.updateProduct = async (req, res) => {
       product
     });
   } catch (error) {
+    console.error('Update product error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error updating product',
-      error: error.message
+      message: error.message || 'Error updating product'
     });
   }
 };
