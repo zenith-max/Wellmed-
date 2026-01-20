@@ -818,6 +818,14 @@ main.container {
 .cart-item-controls .btn-danger {
   padding: 0.3rem 0.7rem;
   font-size: 0.8rem;
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.cart-item-controls .btn-danger:hover {
+  background: #222;
+  color: #fff;
 }
 
 .cart-summary {

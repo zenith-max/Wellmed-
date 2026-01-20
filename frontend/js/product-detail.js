@@ -332,7 +332,7 @@ const showCart = () => {
               <button onclick="updateCartQuantity(${index}, -1)">−</button>
               <span>${item.quantity}</span>
               <button onclick="updateCartQuantity(${index}, 1)">+</button>
-              <button onclick="removeFromCart(${index})">🗑️</button>
+              <button class="btn-danger" onclick="removeFromCart(${index})" aria-label="Remove ${item.productName} from cart">Delete</button>
             </div>
           </div>
         `;
