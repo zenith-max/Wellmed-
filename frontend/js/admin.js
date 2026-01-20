@@ -336,8 +336,6 @@ const showAddProductForm = () => {
   document.getElementById('formTitle').textContent = 'Add New Product';
   document.getElementById('productId').value = '';
   document.querySelector('#productForm form').reset();
-  const imgUrlInput = document.getElementById('productImageUrl');
-  if (imgUrlInput) imgUrlInput.value = '';
   document.getElementById('imagePreview').innerHTML = '';
 };
 
@@ -356,8 +354,6 @@ const editProduct = async (productId) => {
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productStock').value = product.stock;
     document.getElementById('productCategory').value = product.category;
-    const imgUrlInput = document.getElementById('productImageUrl');
-    if (imgUrlInput) imgUrlInput.value = product.imageUrl || '';
 
     // Show image preview
     document.getElementById('imagePreview').innerHTML = `
@@ -398,8 +394,12 @@ const handleProductSubmit = async (event) => {
   const price = document.getElementById('productPrice').value;
   const stock = document.getElementById('productStock').value;
   const category = document.getElementById('productCategory').value;
-  const imageUrl = document.getElementById('productImageUrl').value.trim();
   const imageFile = document.getElementById('productImage').files[0];
+
+  if (!productId && !imageFile) {
+    formError.textContent = 'Please upload a product image.';
+    return;
+  }
 
   const formData = new FormData();
   formData.append('name', name);
@@ -407,7 +407,6 @@ const handleProductSubmit = async (event) => {
   formData.append('price', price);
   formData.append('stock', stock);
   formData.append('category', category);
-  if (imageUrl) formData.append('imageUrl', imageUrl);
   if (imageFile) formData.append('image', imageFile);
 
   try {
@@ -427,18 +426,6 @@ const handleProductSubmit = async (event) => {
     console.error('Error saving product:', error);
   }
 };
-
-// Image preview for Cloudinary URL or local file
-document.addEventListener('input', function(e) {
-  if (e.target.id === 'productImageUrl') {
-    const url = e.target.value.trim();
-    if (url) {
-      document.getElementById('imagePreview').innerHTML = `<img src="${url}" style="max-width: 200px;">`;
-    } else {
-      document.getElementById('imagePreview').innerHTML = '';
-    }
-  }
-});
 
 document.addEventListener('change', function(e) {
   if (e.target.id === 'productImage') {
