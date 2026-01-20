@@ -185,6 +185,11 @@ const renderSalesChart = (orders) => {
   const ctx = document.getElementById('salesChart');
   if (!ctx) return;
 
+  // Exclude cancelled orders from revenue stats
+  const sourceOrders = Array.isArray(orders)
+    ? orders.filter(o => (o.status || '').toLowerCase() !== 'cancelled')
+    : [];
+
   // Group revenue by day or month
   const now = new Date();
   const buckets = [];
@@ -209,7 +214,7 @@ const renderSalesChart = (orders) => {
     }
   }
 
-  orders.forEach(order => {
+  sourceOrders.forEach(order => {
     if (!order.createdAt || order.totalPrice == null) return;
     const d = new Date(order.createdAt);
     let key;
