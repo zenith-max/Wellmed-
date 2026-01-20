@@ -2,6 +2,17 @@ const Product = require('../models/Product');
 const cloudinary = require('cloudinary').v2;
 const PUBLIC_BASE_URL = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 5000}`;
 
+const sanitizePublicId = (name = 'product-image') => {
+  const base = (name || 'product-image')
+    .trim()
+    .replace(/\.[^.]+$/, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9_-]/g, '')
+    .replace(/-+/g, '-');
+  const safe = base || 'product-image';
+  return `${safe}-${Date.now()}`;
+};
+
 const ensureCloudinaryConfig = () => {
   if (!cloudinary.config().cloud_name) {
     const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
@@ -19,9 +30,10 @@ const ensureCloudinaryConfig = () => {
 
 const uploadBufferToCloudinary = (buffer, filename = 'upload') => {
   ensureCloudinaryConfig();
+  const publicId = sanitizePublicId(filename);
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: 'medwell_products', public_id: filename.replace(/\.[^.]+$/, ''), resource_type: 'auto' },
+      { folder: 'medwell_products', public_id: publicId, resource_type: 'auto' },
       (error, result) => {
         if (error) return reject(new Error(`Cloudinary upload failed: ${error.message || error.toString()}`));
         resolve(result);
