@@ -123,9 +123,17 @@ exports.createProduct = async (req, res) => {
     let finalPublicId = imagePublicId || null;
 
     if (req.file && req.file.buffer) {
-      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
-      finalImageUrl = uploadResult.secure_url;
-      finalPublicId = uploadResult.public_id;
+      try {
+        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
+        finalImageUrl = uploadResult.secure_url;
+        finalPublicId = uploadResult.public_id;
+      } catch (err) {
+        console.error('Cloudinary upload (create) failed:', err);
+        return res.status(500).json({
+          success: false,
+          message: err.message || 'Cloudinary upload failed'
+        });
+      }
     } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim()) {
       const normalizedUrl = imageUrl.trim();
       const isCloudinary = /cloudinary\.com/i.test(normalizedUrl);
@@ -191,13 +199,21 @@ exports.updateProduct = async (req, res) => {
 
     // Update image if provided: prefer uploaded file, else Cloudinary URL
     if (req.file && req.file.buffer) {
-      const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
-      // Optionally cleanup old image in Cloudinary if we have a public ID
-      if (product.imagePublicId) {
-        cloudinary.uploader.destroy(product.imagePublicId).catch(() => {});
+      try {
+        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname || 'product-image');
+        // Optionally cleanup old image in Cloudinary if we have a public ID
+        if (product.imagePublicId) {
+          cloudinary.uploader.destroy(product.imagePublicId).catch(() => {});
+        }
+        product.imageUrl = uploadResult.secure_url;
+        product.imagePublicId = uploadResult.public_id;
+      } catch (err) {
+        console.error('Cloudinary upload (update) failed:', err);
+        return res.status(500).json({
+          success: false,
+          message: err.message || 'Cloudinary upload failed'
+        });
       }
-      product.imageUrl = uploadResult.secure_url;
-      product.imagePublicId = uploadResult.public_id;
     } else if (imageUrl) {
       if (typeof imageUrl !== 'string' || !imageUrl.trim()) {
         return res.status(400).json({
