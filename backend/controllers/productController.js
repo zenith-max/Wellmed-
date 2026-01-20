@@ -21,7 +21,7 @@ const uploadBufferToCloudinary = (buffer, filename = 'upload') => {
   ensureCloudinaryConfig();
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: 'medwell_products', public_id: filename.replace(/\.[^.]+$/, '') },
+      { folder: 'medwell_products', public_id: filename.replace(/\.[^.]+$/, ''), resource_type: 'auto' },
       (error, result) => {
         if (error) return reject(new Error(`Cloudinary upload failed: ${error.message || error.toString()}`));
         resolve(result);

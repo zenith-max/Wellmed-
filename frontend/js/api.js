@@ -19,12 +19,15 @@ const apiCall = async (endpoint, options = {}) => {
     });
 
     // Handle response
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const body = isJson ? await response.json() : await response.text();
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const message = isJson ? body.message : body;
+      throw new Error(message || `HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    return body;
   } catch (error) {
     console.error('API Error:', error);
     throw error;
