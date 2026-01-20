@@ -73,29 +73,41 @@ const productsAPI = {
       method: 'GET'
     }),
 
-  create: (formData) =>
-    fetch(`${API_BASE_URL}/products`, {
+  create: async (formData) => {
+    const res = await fetch(`${API_BASE_URL}/products`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${getToken()}`
       },
       body: formData
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to create product');
-      return res.json();
-    }),
+    });
 
-  update: (id, formData) =>
-    fetch(`${API_BASE_URL}/products/${id}`, {
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    const body = isJson ? await res.json() : await res.text();
+    if (!res.ok) {
+      const message = isJson ? body.message : body;
+      throw new Error(message || 'Failed to create product');
+    }
+    return body;
+  },
+
+  update: async (id, formData) => {
+    const res = await fetch(`${API_BASE_URL}/products/${id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${getToken()}`
       },
       body: formData
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to update product');
-      return res.json();
-    }),
+    });
+
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    const body = isJson ? await res.json() : await res.text();
+    if (!res.ok) {
+      const message = isJson ? body.message : body;
+      throw new Error(message || 'Failed to update product');
+    }
+    return body;
+  },
 
   delete: (id) =>
     apiCall(`/products/${id}`, {
