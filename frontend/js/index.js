@@ -3,6 +3,13 @@ let allProducts = [];
 let filteredProducts = [];
 let cart = [];
 
+const getDiscountedPrice = (product) => {
+  const price = Number(product.price) || 0;
+  const discount = Number(product.discountPercent) || 0;
+  const discounted = price * (1 - discount / 100);
+  return Math.max(0, Number(discounted.toFixed(2)));
+};
+
 // ============== INITIALIZATION ==============
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
@@ -149,7 +156,9 @@ const renderProducts = () => {
           <h3>${product.name}</h3>
           <p class="product-description">${product.description.substring(0, 60)}...</p>
           <div class="product-footer">
-            <span class="price">₹${product.price.toFixed(2)}</span>
+            ${Number(product.discountPercent || 0) > 0
+              ? `<div class="price-wrap"><span class="price-new">₹${getDiscountedPrice(product).toFixed(2)}</span><span class="price-old">₹${product.price.toFixed(2)}</span></div><span class="discount-chip">Save ₹${(product.price - getDiscountedPrice(product)).toFixed(2)} (${product.discountPercent}% off)</span>`
+              : `<span class="price">₹${product.price.toFixed(2)}</span>`}
             <span class="stock ${product.stock < 10 ? 'low-stock' : ''}">
               ${product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
             </span>
@@ -158,7 +167,7 @@ const renderProducts = () => {
             <button class="btn btn-secondary btn-small" onclick="viewProductDetails('${product._id}')">
               View Details
             </button>
-            <button class="btn btn-primary btn-small" onclick="addToCart('${product._id}', '${product.name}', ${product.price})"
+            <button class="btn btn-primary btn-small" onclick="addToCart('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
                     ${product.stock === 0 ? 'disabled' : ''}>
               Add to Cart
             </button>

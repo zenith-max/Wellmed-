@@ -4,6 +4,13 @@ let cart = [];
 let currentProduct = null;
 let currentProductId = null;
 
+const getDiscountedPrice = (product) => {
+  const price = Number(product.price) || 0;
+  const discount = Number(product.discountPercent) || 0;
+  const discounted = price * (1 - discount / 100);
+  return Math.max(0, Number(discounted.toFixed(2)));
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   loadCart();
   loadProductDetail();
@@ -82,7 +89,9 @@ const renderProductDetail = (product) => {
         
         <div class="product-detail-price">
           <span class="price-label">Price:</span>
-          <span class="price-value">₹${product.price.toFixed(2)}</span>
+          ${Number(product.discountPercent || 0) > 0
+            ? `<div class="price-stack"><span class="price-new">₹${getDiscountedPrice(product).toFixed(2)}</span><span class="price-old">₹${product.price.toFixed(2)}</span><span class="discount-chip">Save ₹${(product.price - getDiscountedPrice(product)).toFixed(2)} (${product.discountPercent}% off)</span></div>`
+            : `<span class="price-value">₹${product.price.toFixed(2)}</span>`}
         </div>
         
         <div class="product-detail-stock">
@@ -99,7 +108,7 @@ const renderProductDetail = (product) => {
         
         <div class="product-detail-actions">
           <button class="btn btn-primary btn-large" 
-                  onclick="addToCartFromDetail('${product._id}', '${product.name}', ${product.price})"
+                  onclick="addToCartFromDetail('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
                   ${product.stock === 0 ? 'disabled' : ''}>
             ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
           </button>

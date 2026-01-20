@@ -399,6 +399,40 @@ main.container {
   gap: 0.5rem;
 }
 
+.price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-new,
+.price-value {
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
+.price-old {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+}
+
+.discount-chip {
+  display: inline-block;
+  background: #e8f5ff;
+  color: #0f4c81;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.price-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .price {
   font-size: 1.3rem;
   font-weight: bold;

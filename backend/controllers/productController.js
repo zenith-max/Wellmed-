@@ -122,7 +122,7 @@ exports.getProductById = async (req, res) => {
 // @access  Private (Admin)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, imageUrl, imagePublicId } = req.body;
+    const { name, description, price, category, stock, imageUrl, imagePublicId, discountPercent } = req.body;
 
     // Validation
     if (!name || !description || !price || !category || stock === undefined) {
@@ -131,6 +131,14 @@ exports.createProduct = async (req, res) => {
         message: 'Please provide all required fields'
       });
     }
+    const discountValue = Number(discountPercent ?? 0);
+    if (Number.isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Discount percent must be between 0 and 100'
+      });
+    }
+
     let finalImageUrl = null;
     let finalPublicId = imagePublicId || null;
 
@@ -169,6 +177,7 @@ exports.createProduct = async (req, res) => {
       price,
       category,
       stock,
+      discountPercent: discountValue,
       imageUrl: finalImageUrl,
       imagePublicId: finalPublicId
     });
@@ -192,7 +201,7 @@ exports.createProduct = async (req, res) => {
 // @access  Private (Admin)
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, imageUrl, imagePublicId } = req.body;
+    const { name, description, price, category, stock, imageUrl, imagePublicId, discountPercent } = req.body;
     let product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -208,6 +217,16 @@ exports.updateProduct = async (req, res) => {
     if (price) product.price = price;
     if (category) product.category = category;
     if (stock !== undefined) product.stock = stock;
+    if (discountPercent !== undefined) {
+      const discountValue = Number(discountPercent);
+      if (Number.isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
+        return res.status(400).json({
+          success: false,
+          message: 'Discount percent must be between 0 and 100'
+        });
+      }
+      product.discountPercent = discountValue;
+    }
 
     // Update image if provided: prefer uploaded file, else Cloudinary URL
     if (req.file && req.file.buffer) {

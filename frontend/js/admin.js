@@ -8,6 +8,12 @@ let salesChartRange = 14;
 let salesChartType = 'bar';
 let salesChartGrouping = 'day';
 
+const getDiscountedPrice = (product) => {
+  const price = Number(product.price) || 0;
+  const discount = Number(product.discountPercent) || 0;
+  return Math.max(0, price * (1 - discount / 100));
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   // Check if user is admin
   if (!isAdmin()) {
@@ -320,7 +326,11 @@ const renderProductsTable = () => {
         </td>
         <td>${product.name}</td>
         <td>${product.category}</td>
-        <td>₹${product.price.toFixed(2)}</td>
+        <td>
+          <div>₹${getDiscountedPrice(product).toFixed(2)}</div>
+          ${product.discountPercent ? `<small class="muted">${product.discountPercent}% off · saved ₹${(product.price - getDiscountedPrice(product)).toFixed(2)}</small>` : ''}
+          ${product.discountPercent ? `<div class="muted" style="text-decoration:line-through;">₹${Number(product.price).toFixed(2)}</div>` : ''}
+        </td>
         <td><span class="${product.stock < 10 ? 'low-stock' : ''}">${product.stock}</span></td>
         <td>
           <button class="btn btn-secondary btn-small" onclick="editProduct('${product._id}')">Edit</button>
@@ -337,6 +347,8 @@ const showAddProductForm = () => {
   document.getElementById('productId').value = '';
   document.querySelector('#productForm form').reset();
   document.getElementById('imagePreview').innerHTML = '';
+  const discountInput = document.getElementById('productDiscount');
+  if (discountInput) discountInput.value = 0;
 };
 
 const hideAddProductForm = () => {
@@ -354,6 +366,8 @@ const editProduct = async (productId) => {
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productStock').value = product.stock;
     document.getElementById('productCategory').value = product.category;
+    const discountInput = document.getElementById('productDiscount');
+    if (discountInput) discountInput.value = product.discountPercent || 0;
 
     // Show image preview
     document.getElementById('imagePreview').innerHTML = `
@@ -395,6 +409,7 @@ const handleProductSubmit = async (event) => {
   const stock = document.getElementById('productStock').value;
   const category = document.getElementById('productCategory').value;
   const imageFile = document.getElementById('productImage').files[0];
+  const discount = document.getElementById('productDiscount').value;
 
   if (!productId && !imageFile) {
     formError.textContent = 'Please upload a product image.';
@@ -407,6 +422,7 @@ const handleProductSubmit = async (event) => {
   formData.append('price', price);
   formData.append('stock', stock);
   formData.append('category', category);
+  formData.append('discountPercent', discount || 0);
   if (imageFile) formData.append('image', imageFile);
 
   try {
@@ -442,6 +458,13 @@ document.addEventListener('change', function(e) {
     }
   }
 });
+
+const clearDiscount = () => {
+  const discountInput = document.getElementById('productDiscount');
+  if (discountInput) {
+    discountInput.value = 0;
+  }
+};
 
 // ============== ORDERS MANAGEMENT ==============
 const loadAdminOrders = async () => {

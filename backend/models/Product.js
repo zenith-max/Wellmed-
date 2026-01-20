@@ -27,6 +27,12 @@ const productSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
+  discountPercent: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
+  },
   imageUrl: {
     type: String, // Store Cloudinary URL
     required: [true, 'Please provide product image']
