@@ -112,6 +112,7 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/coupons', require('./routes/couponRoutes'));
 
 // Health check route
 app.get('/api/health', (req, res) => {

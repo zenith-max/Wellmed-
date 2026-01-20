@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 const { getShippingChargeValue } = require('./settingsController');
 
 // @desc    Create new order
@@ -7,7 +8,7 @@ const { getShippingChargeValue } = require('./settingsController');
 // @access  Private (Customer)
 exports.createOrder = async (req, res) => {
   try {
-    const { items, shippingAddress, paymentMethod } = req.body;
+    const { items, shippingAddress, paymentMethod, couponCode } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({
@@ -25,6 +26,8 @@ exports.createOrder = async (req, res) => {
 
     let totalPrice = 0;
     let shippingFee = await getShippingChargeValue();
+    let discountAmount = 0;
+    let appliedCoupon = null;
     const orderItems = [];
 
     // Validate items and calculate total
@@ -59,11 +62,31 @@ exports.createOrder = async (req, res) => {
       await product.save();
     }
 
+    // Apply coupon if provided
+    if (couponCode) {
+      const code = (couponCode || '').trim().toUpperCase();
+      const coupon = await Coupon.findOne({ code });
+      if (!coupon) {
+        return res.status(400).json({ success: false, message: 'Invalid coupon code' });
+      }
+      if (!coupon.isActive) {
+        return res.status(400).json({ success: false, message: 'Coupon is inactive' });
+      }
+      if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+        return res.status(400).json({ success: false, message: 'Coupon has expired' });
+      }
+
+      discountAmount = totalPrice * (Number(coupon.discountPercent) || 0) / 100;
+      appliedCoupon = coupon.code;
+    }
+
     // Create order
     const order = await Order.create({
       userId: req.user.id,
       items: orderItems,
-      totalPrice: totalPrice + shippingFee,
+      totalPrice: totalPrice - discountAmount + shippingFee,
+      discountAmount,
+      couponCode: appliedCoupon,
       shippingFee,
       shippingAddress,
       paymentMethod: paymentMethod || 'credit-card'

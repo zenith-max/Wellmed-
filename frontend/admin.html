@@ -76,6 +76,31 @@
           </form>
         </div>
 
+        <div class="card" style="margin-top:16px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.08); max-width:520px;">
+          <h3 style="margin-top:0;">Coupons</h3>
+          <form id="couponForm" onsubmit="handleCouponCreate(event)">
+            <div class="form-row" style="align-items:flex-end; gap:12px;">
+              <div class="form-group" style="flex:1; margin-bottom:0;">
+                <label for="couponCode">Code</label>
+                <input type="text" id="couponCode" required placeholder="SAVE10" style="text-transform:uppercase;">
+              </div>
+              <div class="form-group" style="width:120px; margin-bottom:0;">
+                <label for="couponDiscount">% Off</label>
+                <input type="number" id="couponDiscount" min="0" max="100" step="1" required value="0">
+              </div>
+            </div>
+            <div class="form-row" style="align-items:flex-end; gap:12px;">
+              <div class="form-group" style="flex:1; margin-bottom:0;">
+                <label for="couponExpiry">Expires At (optional)</label>
+                <input type="date" id="couponExpiry">
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:12px;">Add Coupon</button>
+            </div>
+            <p id="couponMessage" class="muted" style="margin-top:8px; color:#0f4c81;"></p>
+          </form>
+          <div id="couponList" style="margin-top:12px;"></div>
+        </div>
+
         <div class="chart-card" style="margin-top:24px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:8px;">

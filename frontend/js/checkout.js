@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCheckoutData();
 });
 
+let checkoutState = {
+  subtotal: 0,
+  shipping: 50,
+  discount: 0,
+  coupon: null
+};
+
 const loadCheckoutData = async () => {
   const cart = getCart();
 
@@ -46,16 +53,68 @@ const loadCheckoutData = async () => {
     console.warn('Unable to load shipping charge, using default 50', err.message || err);
   }
 
-  const total = subtotal + shipping;
-
-  document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-  document.getElementById('shipping').textContent = shipping.toFixed(2);
-  document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+  checkoutState = { subtotal, shipping, discount: 0, coupon: null };
+  updateTotals();
 
   // Prefill user details if available
   const user = getUser();
   if (user && user.name) {
     document.getElementById('fullName').value = user.name;
+  }
+};
+
+const updateTotals = () => {
+  const { subtotal, shipping, discount } = checkoutState;
+  const total = subtotal - discount + shipping;
+  document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+  document.getElementById('shipping').textContent = shipping.toFixed(2);
+  document.getElementById('discountAmount').textContent = discount.toFixed(2);
+  document.getElementById('discountRow').style.display = discount > 0 ? 'block' : 'none';
+  document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+};
+
+const applyCoupon = async () => {
+  const input = document.getElementById('couponCodeInput');
+  const message = document.getElementById('couponMessage');
+  if (!input) return;
+  const code = (input.value || '').trim();
+  if (!code) {
+    if (message) message.textContent = 'Enter a coupon code';
+    return;
+  }
+
+  try {
+    if (message) {
+      message.textContent = 'Checking...';
+      message.style.color = '#0f4c81';
+    }
+    const res = await couponsAPI.validate(code);
+    if (res && res.success && res.coupon) {
+      const discount = checkoutState.subtotal * (Number(res.coupon.discountPercent) || 0) / 100;
+      checkoutState.discount = discount;
+      checkoutState.coupon = res.coupon.code;
+      updateTotals();
+      if (message) {
+        message.textContent = `Applied ${res.coupon.discountPercent}% off`;
+        message.style.color = '#0f4c81';
+      }
+    } else {
+      checkoutState.discount = 0;
+      checkoutState.coupon = null;
+      updateTotals();
+      if (message) {
+        message.textContent = res.message || 'Invalid coupon';
+        message.style.color = '#c0392b';
+      }
+    }
+  } catch (error) {
+    checkoutState.discount = 0;
+    checkoutState.coupon = null;
+    updateTotals();
+    if (message) {
+      message.textContent = error.message || 'Invalid coupon';
+      message.style.color = '#c0392b';
+    }
   }
 };
 
@@ -87,7 +146,8 @@ const handleCheckout = async (event) => {
     const response = await ordersAPI.create({
       items: cart,
       shippingAddress,
-      paymentMethod
+      paymentMethod,
+      couponCode: checkoutState.coupon
     });
 
     if (response.success) {

@@ -7,6 +7,7 @@ let dashboardOrders = [];
 let salesChartRange = 14;
 let salesChartType = 'bar';
 let salesChartGrouping = 'day';
+let adminCoupons = [];
 
 const getDiscountedPrice = (product) => {
   const price = Number(product.price) || 0;
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAdminProducts();
   loadAdminOrders();
   loadShippingCharge();
+  loadCoupons();
 });
 
 // ============== SECTION NAVIGATION ==============
@@ -122,6 +124,99 @@ const loadShippingCharge = async () => {
     if (message) {
       message.textContent = 'Could not load shipping charge. Using default.';
       message.style.color = '#c0392b';
+    }
+  }
+};
+
+// ============== COUPONS ==============
+const loadCoupons = async () => {
+  const listEl = document.getElementById('couponList');
+  const msg = document.getElementById('couponMessage');
+  if (!listEl) return;
+  try {
+    const res = await couponsAPI.list();
+    adminCoupons = res.coupons || [];
+    renderCoupons();
+    if (msg) msg.textContent = '';
+  } catch (error) {
+    if (msg) {
+      msg.textContent = error.message || 'Failed to load coupons';
+      msg.style.color = '#c0392b';
+    }
+  }
+};
+
+const renderCoupons = () => {
+  const listEl = document.getElementById('couponList');
+  if (!listEl) return;
+  if (!adminCoupons.length) {
+    listEl.innerHTML = '<p class="muted">No coupons yet.</p>';
+    return;
+  }
+  listEl.innerHTML = adminCoupons
+    .map(c => {
+      const expired = c.expiresAt && new Date(c.expiresAt) < new Date();
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;">
+          <div>
+            <strong>${c.code}</strong> · ${c.discountPercent}% off
+            ${c.expiresAt ? `<span class="muted">· Expires ${new Date(c.expiresAt).toLocaleDateString()}</span>` : ''}
+            ${expired ? '<span class="muted" style="color:#c0392b;">Expired</span>' : ''}
+          </div>
+          <button class="btn btn-small ${c.isActive ? 'btn-secondary' : 'btn-primary'}" onclick="toggleCoupon('${c._id}', ${!c.isActive})">${c.isActive ? 'Deactivate' : 'Activate'}</button>
+        </div>
+      `;
+    })
+    .join('');
+};
+
+const handleCouponCreate = async (event) => {
+  event.preventDefault();
+  const codeEl = document.getElementById('couponCode');
+  const discountEl = document.getElementById('couponDiscount');
+  const expiryEl = document.getElementById('couponExpiry');
+  const msg = document.getElementById('couponMessage');
+  if (!codeEl || !discountEl) return;
+
+  try {
+    if (msg) {
+      msg.textContent = 'Saving...';
+      msg.style.color = '#0f4c81';
+    }
+    await couponsAPI.create({
+      code: codeEl.value,
+      discountPercent: discountEl.value,
+      expiresAt: expiryEl?.value || undefined
+    });
+    if (codeEl) codeEl.value = '';
+    if (discountEl) discountEl.value = 0;
+    if (expiryEl) expiryEl.value = '';
+    await loadCoupons();
+    if (msg) {
+      msg.textContent = 'Coupon added';
+      msg.style.color = '#0f4c81';
+    }
+  } catch (error) {
+    if (msg) {
+      msg.textContent = error.message || 'Failed to add coupon';
+      msg.style.color = '#c0392b';
+    }
+  }
+};
+
+const toggleCoupon = async (id, isActive) => {
+  const msg = document.getElementById('couponMessage');
+  try {
+    await couponsAPI.toggle(id, isActive);
+    await loadCoupons();
+    if (msg) {
+      msg.textContent = 'Coupon updated';
+      msg.style.color = '#0f4c81';
+    }
+  } catch (error) {
+    if (msg) {
+      msg.textContent = error.message || 'Failed to update coupon';
+      msg.style.color = '#c0392b';
     }
   }
 };

@@ -165,3 +165,29 @@ const settingsAPI = {
       body: JSON.stringify({ shippingCharge })
     })
 };
+
+// ============== COUPONS API ==============
+
+const couponsAPI = {
+  create: (data) =>
+    apiCall('/coupons', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  list: () =>
+    apiCall('/coupons', {
+      method: 'GET'
+    }),
+
+  toggle: (id, isActive) =>
+    apiCall(`/coupons/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ isActive })
+    }),
+
+  validate: (code) =>
+    apiCall(`/coupons/validate/${encodeURIComponent(code)}`, {
+      method: 'GET'
+    })
+};
