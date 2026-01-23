@@ -169,6 +169,10 @@ const renderProducts = () => {
             <button class="btn btn-secondary btn-small" onclick="viewProductDetails('${product._id}')">
               View Details
             </button>
+            <button class="btn btn-primary btn-small" onclick="buyNow('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
+                    ${product.stock === 0 ? 'disabled' : ''}>
+              Buy Now
+            </button>
             <button class="btn btn-primary btn-small" onclick="addToCart('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
                     ${product.stock === 0 ? 'disabled' : ''}>
               Add to Cart
@@ -198,6 +202,27 @@ const addToCart = (productId, productName, price) => {
   setCart(cart);
   updateCartCount();
   showNotification(`${productName} added to cart!`);
+};
+
+// Quick purchase: add item and go to checkout
+const buyNow = (productId, productName, price) => {
+  if (!isLoggedIn()) {
+    alert('Please login to continue');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const existingItem = cart.find(item => item.productId === productId);
+
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ productId, productName, price, quantity: 1 });
+  }
+
+  setCart(cart);
+  updateCartCount();
+  window.location.href = 'checkout.html';
 };
 
 // ============== VIEW PRODUCT DETAILS ==============
