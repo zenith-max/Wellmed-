@@ -47,17 +47,18 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-const sendVerificationEmail = async (user, verificationCode) => {
+const sendVerificationEmail = async (user, verificationToken) => {
   const appBase = process.env.APP_BASE_URL || 'https://wellmedsurgicals.com';
-  const verifyPage = `${appBase}/verify.html`;
+  const verifyLink = `${appBase}/verify-link.html?token=${verificationToken}`;
 
   const html = `
     <p>Hi ${user.name || 'there'},</p>
-    <p>Use the verification code below to activate your Medwell account:</p>
-    <h2 style="letter-spacing:4px;">${verificationCode}</h2>
-    <p>This code will expire in 24 hours.</p>
-    <p>You can enter it on the verification page: <a href="${verifyPage}">${verifyPage}</a></p>
-    <p>If you did not create an account, you can ignore this email.</p>
+    <p>Tap the button below to verify your Medwell account:</p>
+    <p><a href="${verifyLink}" style="display:inline-block;padding:12px 18px;background:#c20000;color:#fff;text-decoration:none;border-radius:6px;">Verify Account</a></p>
+    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+    <p><a href="${verifyLink}">${verifyLink}</a></p>
+    <p>This link will expire in 24 hours.</p>
+    <p>If you didn't create an account, you can ignore this email.</p>
   `;
 
   await sendEmail({
@@ -133,10 +134,10 @@ exports.register = async (req, res) => {
       role: 'customer'
     });
 
-    // Generate verification code and send email
-    const verificationCode = user.createEmailVerificationToken();
+    // Generate verification link token and send email
+    const verificationToken = user.createEmailVerificationToken();
     await user.save({ validateBeforeSave: false });
-    await sendVerificationEmail(user, verificationCode);
+    await sendVerificationEmail(user, verificationToken);
 
     return res.status(201).json({
       success: true,
@@ -188,17 +189,17 @@ exports.login = async (req, res) => {
 
     // Block login until email is verified
     if (!user.emailVerified) {
-      // Refresh verification code if expired or missing
+      // Refresh verification link if expired or missing
       const now = Date.now();
       if (!user.verificationToken || !user.verificationTokenExpires || user.verificationTokenExpires < now) {
-        const freshCode = user.createEmailVerificationToken();
+        const freshToken = user.createEmailVerificationToken();
         await user.save({ validateBeforeSave: false });
-        await sendVerificationEmail(user, freshCode);
+        await sendVerificationEmail(user, freshToken);
       }
 
       return res.status(403).json({
         success: false,
-        message: 'Please verify your email to continue. A verification code has been sent to your inbox.'
+        message: 'Please verify your email to continue. A verification link has been sent to your inbox.'
       });
     }
 
@@ -257,16 +258,23 @@ exports.getMe = async (req, res) => {
 // @access  Public
 exports.verifyEmail = async (req, res) => {
   try {
-    const { email, code } = req.body;
+    const { email, token } = req.body;
 
-    if (!email || !code) {
+    if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Email and code are required'
+        message: 'Verification token is required'
       });
     }
 
-    const user = await User.findOne({ email }).select('+verificationToken +verificationTokenExpires');
+    // Prefer email lookup if provided; otherwise find by token hash
+    let user;
+    if (email) {
+      user = await User.findOne({ email }).select('+verificationToken +verificationTokenExpires');
+    } else {
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      user = await User.findOne({ verificationToken: hashedToken }).select('+verificationToken +verificationTokenExpires');
+    }
 
     if (!user) {
       return res.status(404).json({
@@ -292,17 +300,17 @@ exports.verifyEmail = async (req, res) => {
       });
     }
 
-    const hashedCode = crypto.createHash('sha256').update(code).digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     if (
       !user.verificationToken ||
       !user.verificationTokenExpires ||
       user.verificationTokenExpires < Date.now() ||
-      user.verificationToken !== hashedCode
+      user.verificationToken !== hashedToken
     ) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired verification code'
+        message: 'Invalid or expired verification link'
       });
     }
 
@@ -365,18 +373,18 @@ exports.resendVerification = async (req, res) => {
       });
     }
 
-    const verificationCode = user.createEmailVerificationToken();
+    const verificationToken = user.createEmailVerificationToken();
     await user.save({ validateBeforeSave: false });
-    await sendVerificationEmail(user, verificationCode);
+    await sendVerificationEmail(user, verificationToken);
 
     return res.status(200).json({
       success: true,
-      message: 'Verification code resent. Please check your email.'
+      message: 'Verification link resent. Please check your email.'
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Could not resend verification code',
+      message: 'Could not resend verification link',
       error: error.message
     });
   }

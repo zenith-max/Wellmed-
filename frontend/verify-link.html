@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Email - Medwell</title>
+  <title>Verify Link - Medwell</title>
   <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dxddgwpul/image/upload/v1768833648/medwell/logo.jpg">
   <link rel="shortcut icon" href="https://res.cloudinary.com/dxddgwpul/image/upload/v1768833648/medwell/logo.jpg">
   <link rel="stylesheet" href="css/style.css">
@@ -15,26 +15,17 @@
       <div class="logo-container">
         <img src="https://res.cloudinary.com/dxddgwpul/image/upload/v1768833648/medwell/logo.jpg" height="50" width="50" alt="Medwell logo">
       </div>
-      <h1>Verify your email</h1>
-      <p class="auth-subtitle">We sent you a verification link. Please check your inbox and click it. If you didn’t get it, resend below.</p>
-
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required placeholder="your@email.com">
-      </div>
-
-      <div id="statusMessage" class="error-message"></div>
-
-      <button id="resendButton" class="btn btn-secondary btn-full" style="margin-top: 12px;">Resend verification link</button>
-
+      <h1>Verifying your email...</h1>
+      <p class="auth-subtitle">Please wait while we confirm your account.</p>
+      <div id="verifyStatus" class="error-message"></div>
       <p class="auth-toggle" style="margin-top: 16px;">
-        Already verified? <a href="login.html">Log in</a>
+        Need help? <a href="verify.html">Resend verification link</a>
       </p>
     </div>
   </div>
 
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/verify.js"></script>
+  <script src="js/verify-link.js"></script>
 </body>
 </html>

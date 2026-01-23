@@ -2,8 +2,6 @@
 
 const statusMessage = document.getElementById('statusMessage');
 const emailInput = document.getElementById('email');
-const codeInput = document.getElementById('code');
-const verifyForm = document.getElementById('verifyForm');
 const resendButton = document.getElementById('resendButton');
 
 const setStatus = (message, isError = true) => {
@@ -24,56 +22,25 @@ const setStatus = (message, isError = true) => {
   }
 })();
 
-verifyForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  setStatus('');
-
-  const email = emailInput.value.trim();
-  const code = codeInput.value.trim();
-
-  if (code.length !== 6) {
-    setStatus('Please enter the 6-digit code we sent.', true);
-    return;
-  }
-
-  try {
-    const response = await authAPI.verifyEmail({ email, code });
-
-    if (response.success) {
-      // Save session and redirect
-      setToken(response.token);
-      setUser(response.user);
-      localStorage.removeItem('pendingVerificationEmail');
-      window.location.href = 'index.html';
-      return;
-    }
-
-    setStatus(response.message || 'Verification failed.');
-  } catch (error) {
-    setStatus(error.message || 'Verification failed.');
-    console.error('Verification error:', error);
-  }
-});
-
 resendButton.addEventListener('click', async () => {
   setStatus('');
   const email = emailInput.value.trim();
 
   if (!email) {
-    setStatus('Enter your email to resend the code.');
+    setStatus('Enter your email to resend the link.');
     return;
   }
 
   try {
     const response = await authAPI.resendVerification({ email });
     if (response.success) {
-      setStatus(response.message || 'Verification code resent.', false);
+      setStatus(response.message || 'Verification link resent.', false);
       localStorage.setItem('pendingVerificationEmail', email);
     } else {
-      setStatus(response.message || 'Could not resend code.');
+      setStatus(response.message || 'Could not resend link.');
     }
   } catch (error) {
-    setStatus(error.message || 'Could not resend code.');
+    setStatus(error.message || 'Could not resend link.');
     console.error('Resend verification error:', error);
   }
 });

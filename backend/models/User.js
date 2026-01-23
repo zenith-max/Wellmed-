@@ -76,12 +76,12 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate a 6-digit email verification code and store its hash
+// Generate an email verification token for link-based verification and store its hash
 userSchema.methods.createEmailVerificationToken = function() {
-  const verificationCode = crypto.randomInt(100000, 999999).toString();
-  this.verificationToken = crypto.createHash('sha256').update(verificationCode).digest('hex');
+  const token = crypto.randomBytes(32).toString('hex');
+  this.verificationToken = crypto.createHash('sha256').update(token).digest('hex');
   this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  return verificationCode;
+  return token;
 };
 
 // Generate a 6-digit reset code for password resets and store its hash
