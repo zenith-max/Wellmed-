@@ -320,12 +320,12 @@ exports.verifyEmail = async (req, res) => {
     user.verificationTokenExpires = undefined;
     await user.save({ validateBeforeSave: false });
 
-    const token = generateToken(user._id, user.role);
+    const authToken = generateToken(user._id, user.role);
 
     return res.status(200).json({
       success: true,
       message: 'Email verified successfully',
-      token,
+      token: authToken,
       user: {
         id: user._id,
         name: user.name,
