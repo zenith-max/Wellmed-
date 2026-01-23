@@ -25,19 +25,64 @@
     </div>
   </nav>
 
-  <main class="container" style="margin-top: 24px;">
-    <section class="profile-section">
-      <div class="profile-card">
-        <h2>My Profile</h2>
-        <div id="profileInfo" class="profile-info">
+  <main class="profile-shell">
+    <section class="profile-hero">
+      <div class="profile-hero-inner">
+        <div id="profileAvatar" class="profile-avatar">M</div>
+        <div class="profile-hero-text">
+          <p class="eyebrow">Account overview</p>
+          <h1 id="profileName">Loading...</h1>
+          <p class="muted" id="profileEmail">&nbsp;</p>
+          <div class="pill-row">
+            <span id="profileRole" class="pill">Member</span>
+            <span class="pill pill-ghost">Medwell customer</span>
+          </div>
+        </div>
+        <div class="profile-hero-actions">
+          <button class="btn btn-secondary" onclick="window.location.href='index.html'">Continue Shopping</button>
+          <button class="btn btn-primary" onclick="window.location.href='orders.html'">View Orders</button>
+        </div>
+      </div>
+      <div id="profileStats" class="profile-stats">
+        <div class="stat-card">
+          <p>Orders</p>
+          <h3>--</h3>
+          <span class="stat-subtext">In total</span>
+        </div>
+        <div class="stat-card">
+          <p>In progress</p>
+          <h3>--</h3>
+          <span class="stat-subtext">Processing or shipped</span>
+        </div>
+        <div class="stat-card">
+          <p>Delivered</p>
+          <h3>--</h3>
+          <span class="stat-subtext">Completed orders</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-grid">
+      <div class="profile-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h2>Personal details</h2>
+          </div>
+          <button class="btn btn-secondary btn-small" onclick="logout()">Sign out</button>
+        </div>
+        <div id="profileInfo" class="profile-info-grid">
           <p>Loading profile...</p>
         </div>
       </div>
 
-      <div class="profile-card">
-        <div class="profile-card-header">
-          <h2>Order History</h2>
-          <a href="orders.html" class="btn btn-secondary">View All</a>
+      <div class="profile-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Orders</p>
+            <h2>Recent activity</h2>
+          </div>
+          <a href="orders.html" class="btn btn-primary btn-small">View all</a>
         </div>
         <div id="ordersList" class="orders-list">
           <p>Loading orders...</p>

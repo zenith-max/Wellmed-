@@ -159,9 +159,11 @@ const renderProducts = () => {
             ${Number(product.discountPercent || 0) > 0
               ? `<div class="price-wrap"><span class="price-new">₹${getDiscountedPrice(product).toFixed(2)}</span><span class="price-old">₹${product.price.toFixed(2)}</span></div><span class="discount-chip">Save ₹${(product.price - getDiscountedPrice(product)).toFixed(2)} (${product.discountPercent}% off)</span>`
               : `<span class="price">₹${product.price.toFixed(2)}</span>`}
-            <span class="stock ${product.stock < 10 ? 'low-stock' : ''}">
-              ${product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
-            </span>
+            ${product.stock === 0
+              ? '<span class="stock-chip stock-out">Out of stock</span>'
+              : product.stock < 10
+                ? '<span class="stock-chip stock-low">Low stock</span>'
+                : ''}
           </div>
           <div class="product-actions">
             <button class="btn btn-secondary btn-small" onclick="viewProductDetails('${product._id}')">
