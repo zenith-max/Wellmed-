@@ -49,6 +49,30 @@ const authAPI = {
       body: JSON.stringify(data)
     }),
 
+  verifyEmail: (data) =>
+    apiCall('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  resendVerification: (data) =>
+    apiCall('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  forgotPassword: (data) =>
+    apiCall('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  resetPassword: (data) =>
+    apiCall('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
   getMe: () =>
     apiCall('/auth/me', {
       method: 'GET'

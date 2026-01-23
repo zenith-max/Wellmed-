@@ -57,15 +57,13 @@ const handleRegister = async (event) => {
     });
 
     if (response.success) {
-      // Save token and user data
-      setToken(response.token);
-      setUser(response.user);
-
-      // Redirect to products page
-      window.location.href = 'index.html';
-    } else {
-      errorDiv.textContent = response.message || 'Registration failed';
+      // Store email to prefill verification page
+      localStorage.setItem('pendingVerificationEmail', email);
+      window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
+      return;
     }
+
+    errorDiv.textContent = response.message || 'Registration failed';
   } catch (error) {
     errorDiv.textContent = error.message || 'An error occurred during registration';
     console.error('Registration error:', error);

@@ -74,6 +74,10 @@ const ensureAdminUser = async () => {
       legacyAdmin.name = adminName;
       legacyAdmin.role = 'admin';
       legacyAdmin.password = adminPassword; // triggers hash on save
+      legacyAdmin.emailVerified = true;
+      legacyAdmin.verifiedAt = new Date();
+      legacyAdmin.verificationToken = undefined;
+      legacyAdmin.verificationTokenExpires = undefined;
       await legacyAdmin.save();
       console.log(`🔑 Legacy admin migrated to ${adminEmail}`);
       return;
@@ -84,6 +88,10 @@ const ensureAdminUser = async () => {
         adminUser.name = adminName;
         adminUser.role = 'admin';
         adminUser.password = adminPassword; // triggers hash on save
+        adminUser.emailVerified = true;
+        adminUser.verifiedAt = new Date();
+        adminUser.verificationToken = undefined;
+        adminUser.verificationTokenExpires = undefined;
         await adminUser.save();
         console.log(`🔑 Admin credentials refreshed (${adminEmail})`);
       } else {
@@ -96,7 +104,9 @@ const ensureAdminUser = async () => {
       name: adminName,
       email: adminEmail,
       password: adminPassword,
-      role: 'admin'
+      role: 'admin',
+      emailVerified: true,
+      verifiedAt: new Date()
     });
 
     console.log(`🔑 Admin user created (${adminEmail})`);
