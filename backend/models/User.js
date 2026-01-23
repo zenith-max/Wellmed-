@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 // User Schema for both Admin and Customer
 const userSchema = new mongoose.Schema({
@@ -25,29 +24,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'customer'],
     default: 'customer'
-  },
-  emailVerified: {
-    type: Boolean,
-    default: false
-  },
-  verificationToken: {
-    type: String,
-    select: false
-  },
-  verificationTokenExpires: {
-    type: Date,
-    select: false
-  },
-  verifiedAt: {
-    type: Date
-  },
-  resetPasswordToken: {
-    type: String,
-    select: false
-  },
-  resetPasswordExpires: {
-    type: Date,
-    select: false
   },
   createdAt: {
     type: Date,
@@ -74,22 +50,6 @@ userSchema.pre('save', async function(next) {
 // Method to compare passwords
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Generate an email verification token for link-based verification and store its hash
-userSchema.methods.createEmailVerificationToken = function() {
-  const token = crypto.randomBytes(32).toString('hex');
-  this.verificationToken = crypto.createHash('sha256').update(token).digest('hex');
-  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  return token;
-};
-
-// Generate a 6-digit reset code for password resets and store its hash
-userSchema.methods.createPasswordResetToken = function() {
-  const resetCode = crypto.randomInt(100000, 999999).toString();
-  this.resetPasswordToken = crypto.createHash('sha256').update(resetCode).digest('hex');
-  this.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
-  return resetCode;
 };
 
 module.exports = mongoose.model('User', userSchema);

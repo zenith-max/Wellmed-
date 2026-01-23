@@ -57,9 +57,10 @@ const handleRegister = async (event) => {
     });
 
     if (response.success) {
-      // Store email to prefill verification page
-      localStorage.setItem('pendingVerificationEmail', email);
-      window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
+      // Save token and user data and go to home
+      setToken(response.token);
+      setUser(response.user);
+      window.location.href = 'index.html';
       return;
     }
 
