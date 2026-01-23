@@ -28,17 +28,23 @@ const sendEmail = async ({ to, subject, html }) => {
   // If SMTP is not configured, log the email contents for debugging/local dev
   if (!transporter) {
     console.info(`📧 Email (not sent) to ${to}: ${subject}\n${html}`);
-    return;
+    return false;
   }
 
   const fromAddress = process.env.FROM_EMAIL || 'no-reply@wellmedsurgicals.com';
 
-  await transporter.sendMail({
-    from: fromAddress,
-    to,
-    subject,
-    html
-  });
+  try {
+    await transporter.sendMail({
+      from: fromAddress,
+      to,
+      subject,
+      html
+    });
+    return true;
+  } catch (err) {
+    console.error('✗ Email send failed:', err.message);
+    return false;
+  }
 };
 
 const sendVerificationEmail = async (user, verificationCode) => {
