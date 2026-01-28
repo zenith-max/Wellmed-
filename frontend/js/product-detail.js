@@ -112,8 +112,10 @@ const renderProductDetail = (product) => {
                   ${product.stock === 0 ? 'disabled' : ''}>
             ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
           </button>
-          <button class="btn btn-secondary btn-large" onclick="window.location.href='index.html'">
-            Continue Shopping
+          <button class="btn btn-secondary btn-large" 
+                  onclick="buyNowFromDetail('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
+                  ${product.stock === 0 ? 'disabled' : ''}>
+            Buy Now
           </button>
         </div>
       </div>
@@ -303,6 +305,27 @@ const addToCartFromDetail = (productId, productName, price) => {
   setCart(cart);
   updateCartCount();
   showNotification(`${productName} added to cart!`);
+};
+
+// Quick purchase from detail page: ensure login, add one item, go to checkout
+const buyNowFromDetail = (productId, productName, price) => {
+  if (!isLoggedIn()) {
+    alert('Please login to continue');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const existingItem = cart.find(item => item.productId === productId);
+
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ productId, productName, price, quantity: 1 });
+  }
+
+  setCart(cart);
+  updateCartCount();
+  window.location.href = 'checkout.html';
 };
 
 // Cart functions
