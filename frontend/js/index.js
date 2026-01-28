@@ -146,8 +146,11 @@ const renderProducts = () => {
   }
 
   grid.innerHTML = filteredProducts
-    .map(product => `
-      <div class="product-card">
+    .map(product => {
+      const discountedPrice = getDiscountedPrice(product);
+
+      return `
+      <div class="product-card" onclick="viewProductDetails('${product._id}')">
         <div class="product-image">
           <img src="${product.imageUrl}" alt="${product.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23eee%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2214%22 fill=%22%23999%22%3EImage not found%3C/text%3E%3C/svg%3E'">
           <div class="product-badge">${product.category}</div>
@@ -157,7 +160,7 @@ const renderProducts = () => {
           <p class="product-description">${product.description.substring(0, 60)}...</p>
           <div class="product-footer">
             ${Number(product.discountPercent || 0) > 0
-              ? `<div class="price-wrap"><span class="price-new">₹${getDiscountedPrice(product).toFixed(2)}</span><span class="price-old">₹${product.price.toFixed(2)}</span></div><span class="discount-chip">Save ₹${(product.price - getDiscountedPrice(product)).toFixed(2)} (${product.discountPercent}% off)</span>`
+              ? `<div class="price-wrap"><span class="price-new">₹${discountedPrice.toFixed(2)}</span><span class="price-old">₹${product.price.toFixed(2)}</span></div><span class="discount-chip">Save ₹${(product.price - discountedPrice).toFixed(2)} (${product.discountPercent}% off)</span>`
               : `<span class="price">₹${product.price.toFixed(2)}</span>`}
             ${product.stock === 0
               ? '<span class="stock-chip stock-out">Out of stock</span>'
@@ -166,21 +169,19 @@ const renderProducts = () => {
                 : ''}
           </div>
           <div class="product-actions">
-            <button class="btn btn-secondary btn-small" onclick="viewProductDetails('${product._id}')">
-              View Details
-            </button>
-            <button class="btn btn-primary btn-small" onclick="buyNow('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
+            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); buyNow('${product._id}', '${product.name}', ${discountedPrice})"
                     ${product.stock === 0 ? 'disabled' : ''}>
               Buy Now
             </button>
-            <button class="btn btn-primary btn-small" onclick="addToCart('${product._id}', '${product.name}', ${getDiscountedPrice(product)})"
+            <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); addToCart('${product._id}', '${product.name}', ${discountedPrice})"
                     ${product.stock === 0 ? 'disabled' : ''}>
               Add to Cart
             </button>
           </div>
         </div>
       </div>
-    `)
+    `;
+    })
     .join('');
 };
 
